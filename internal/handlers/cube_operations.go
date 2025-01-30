@@ -10,6 +10,8 @@ import (
 
 	"github.com/turplespace/portos/internal/database"
 	"github.com/turplespace/portos/internal/services/docker"
+	"github.com/turplespace/portos/internal/models"
+	"github.com/turplespace/portos/internal/services/repositories"
 )
 
 func HandleDeployCube(w http.ResponseWriter, r *http.Request) {
@@ -198,7 +200,7 @@ func HandleCommitCube(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("[COMMIT-CUBE] Successfully committed container for cube ID: %d", cubeID)
-
+	repositories.AppendImages(models.Image{Image: newImage, Tag: tag, PulledOn: time.Now().UTC().Format(time.RFC3339)})
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Cube committed successfully"})
 	log.Printf("[COMMIT-CUBE] Commit operation completed successfully for cube ID: %d", cubeID)
