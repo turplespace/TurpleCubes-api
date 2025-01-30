@@ -1,9 +1,10 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"os"
-	"fmt"
+
 	"github.com/turplespace/portos/internal/handlers"
 )
 
@@ -54,6 +55,8 @@ func SetupRoutes() {
 	http.Handle("/api/cube/redeploy", Cors(http.HandlerFunc(handlers.HandleRedeployCube)))
 	http.Handle("/api/cube/stop", Cors(http.HandlerFunc(handlers.HandleStopCube)))
 	http.Handle("/api/cube/commit", Cors(http.HandlerFunc(handlers.HandleCommitCube)))
+
+	http.Handle("/api/proxy", Cors(http.HandlerFunc(handlers.HandlePostProxy)))
 
 	http.Handle("/api/images", Cors(http.HandlerFunc(handlers.HandleGetImages)))
 	http.Handle("/api/logs/stream", Cors(http.HandlerFunc(handlers.HandleLogStream)))
