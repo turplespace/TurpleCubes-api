@@ -32,6 +32,11 @@ func HandlePostProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := proxy.RestartNginxService(); err != nil {
+		fmt.Println(err)
+		http.Error(w, "Failed to restart Nginx service", http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Proxy configuration generated successfully"))
 }

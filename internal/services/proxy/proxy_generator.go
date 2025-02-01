@@ -16,12 +16,12 @@ func GenerateNginxProxyConfig(ip string, port int, subdomain string) error {
 
 			location / {
 				proxy_pass http://%s:%d;
-				proxy_http_version 1.1;
+				proxy_set_header Host $http_host;
 				proxy_set_header Upgrade $http_upgrade;
-				proxy_set_header Connection "upgrade";
-				proxy_set_header Host $host;
-				proxy_cache_bypass $http_upgrade;
+				proxy_set_header Connection upgrade;
+				proxy_set_header Accept-Encoding gzip;
 			}
+		
 		}
 `, subdomain, ip, port)
 	ex, err := os.Executable()

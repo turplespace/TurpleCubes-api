@@ -22,6 +22,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create folder: %v", err)
 	}
+	err = proxy.StopAndRemoveContainer()
+	if err != nil {
+		log.Panicf("Failed to stop and remove container: %v", err)
+	}
 	err = proxy.RunNginxDockerContainer()
 	if err != nil {
 		log.Fatalf("Failed to restart Nginx service: %v", err)

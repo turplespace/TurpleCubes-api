@@ -7,6 +7,28 @@ import (
 	"path/filepath"
 )
 
+// StopAndRemoveContainer stops and removes the Docker container with the given name.
+func StopAndRemoveContainer() error {
+	containerName := "turplecube-proxy"
+	// Stop the container
+	cmd := exec.Command("docker", "stop", containerName)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to stop container %s: %v", containerName, err)
+	}
+
+	// Remove the container
+	cmd = exec.Command("docker", "rm", containerName)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to remove container %s: %v", containerName, err)
+	}
+
+	return nil
+}
+
 // RunNginxDockerContainer runs an Nginx Docker container with the specified configuration folder mounted as a volume.
 func RunNginxDockerContainer() error {
 	ex, err := os.Executable()
@@ -27,12 +49,19 @@ func RunNginxDockerContainer() error {
 	return cmd.Run()
 }
 
-// RestartNginxService restarts the Nginx service.
+// RestartNginxService restarts the Nginx service inside the Docker container.
 func RestartNginxService() error {
-	cmd := exec.Command("systemctl", "restart", "nginx")
+	containerName := "turplecube-proxy"
+
+	// Restart the Nginx service inside the container
+	cmd := exec.Command("docker", "exec", containerName, "nginx", "-s", "reload")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to restart Nginx service inside container %s: %v", containerName, err)
+	}
+
+	return nil
 }
 
 // RemoveDataInFolder removes all data in the specified folder.
