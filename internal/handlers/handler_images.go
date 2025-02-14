@@ -15,6 +15,7 @@ type ImagesResponse struct {
 	TotalCustomImages int            `json:"total_custom_images"`
 }
 
+// HandleGetImages function returns all the images in the repository
 func HandleGetImages(c echo.Context) error {
 	log.Printf("[*] Starting get images request at %s", time.Now().UTC().Format(time.RFC3339))
 

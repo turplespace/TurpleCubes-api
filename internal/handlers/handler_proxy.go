@@ -14,6 +14,7 @@ type ProxyRequest struct {
 	Subdomain string `json:"subdomain"`
 }
 
+// HandlePostProxy function receives IP, Port and Subdomain in request body and generates a proxy configuration
 func HandlePostProxy(c echo.Context) error {
 	var req ProxyRequest
 	if err := c.Bind(&req); err != nil {

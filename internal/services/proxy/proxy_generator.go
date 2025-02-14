@@ -24,10 +24,13 @@ func GenerateNginxProxyConfig(ip string, port int, subdomain string) error {
 		
 		}
 `, subdomain, ip, port)
+
+	// Get the path of the executable
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
+	// Create a folder with the name of the executable + "_proxy"
 	folder := fmt.Sprintf("%s_proxy", ex)
 	file_name := fmt.Sprintf("%s.conf", subdomain)
 	filePath := filepath.Join(folder, file_name)
@@ -37,6 +40,7 @@ func GenerateNginxProxyConfig(ip string, port int, subdomain string) error {
 	}
 	defer file.Close()
 
+	// Write the configuration to the file
 	_, err = file.WriteString(config)
 	if err != nil {
 		return err

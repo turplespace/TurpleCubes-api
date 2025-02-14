@@ -10,6 +10,7 @@ import (
 	"github.com/turplespace/portos/internal/models"
 )
 
+// InsertWorkspaceAndCubes inserts a workspace and its associated cubes into the database
 func InsertWorkspaceAndCubes(workspaceID int, cubes []models.Container) error {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)
@@ -55,6 +56,7 @@ func mapToString(m map[string]string) string {
 	return result
 }
 
+// GetCubeData retrieves the data of a cube by its ID
 func GetCubeData(cubeID int) (*models.Container, error) {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)
@@ -86,6 +88,7 @@ func GetCubeData(cubeID int) (*models.Container, error) {
 	return &cube, nil
 }
 
+// Helper function to split a string by comma
 func splitString(s string) []string {
 	if s == "" {
 		return nil
@@ -93,6 +96,7 @@ func splitString(s string) []string {
 	return strings.Split(s, ",")
 }
 
+// Helper function to convert a string to a map
 func stringToMap(s string) map[string]string {
 	m := make(map[string]string)
 	pairs := strings.Split(s, ",")
@@ -105,6 +109,7 @@ func stringToMap(s string) map[string]string {
 	return m
 }
 
+// UpdateCube updates the data of a cube by its ID
 func UpdateCube(cubeID int, updatedCube models.Container) error {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)
@@ -124,6 +129,7 @@ func UpdateCube(cubeID int, updatedCube models.Container) error {
 	return nil
 }
 
+// DeleteCube deletes a cube by its ID
 func DeleteCube(cubeID int) error {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)
@@ -142,6 +148,7 @@ func DeleteCube(cubeID int) error {
 	return nil
 }
 
+// ListCubes retrieves all cubes in a workspace by its ID
 func ListCubes(workspaceID int) ([]models.Container, error) {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)
@@ -178,6 +185,7 @@ func ListCubes(workspaceID int) ([]models.Container, error) {
 	return cubes, nil
 }
 
+// CountContainersByWorkspaceID counts the number of containers associated with a specific workspace by its ID
 func CountContainersByWorkspaceID(workspaceID int) (int, error) {
 	dbPath, _ := GetPath()
 	db, err := sql.Open("sqlite3", dbPath)
@@ -196,6 +204,7 @@ func CountContainersByWorkspaceID(workspaceID int) (int, error) {
 	return count, nil
 }
 
+// CountCubes counts the total number of cubes in the database
 func CountCubes() (int, error) {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)

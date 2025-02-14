@@ -14,9 +14,8 @@ import (
 	"github.com/turplespace/portos/internal/services/repositories"
 )
 
+// HandleDeployCube function receives cube_id in query params and deploys the cube
 func HandleDeployCube(c echo.Context) error {
-	log.Printf("[*] Starting deployment request at %s", time.Now().UTC().Format(time.RFC3339))
-
 	// Get cube ID from query parameters
 	cubeIDStr := c.QueryParam("cube_id")
 	if cubeIDStr == "" {
@@ -50,9 +49,8 @@ func HandleDeployCube(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Cube deployed successfully"})
 }
 
+// HandleRedeployCube function receives cube_id in query params and redeploys the cube
 func HandleRedeployCube(c echo.Context) error {
-	log.Printf("[*] Starting redeployment request at %s", time.Now().UTC().Format(time.RFC3339))
-
 	cubeIDStr := c.QueryParam("cube_id")
 	if cubeIDStr == "" {
 		log.Printf("[*] Error: No cube ID provided in request")
@@ -83,9 +81,8 @@ func HandleRedeployCube(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Cube redeployed successfully"})
 }
 
+// HandleStopCube function receives cube_id in query params and stops the cube
 func HandleStopCube(c echo.Context) error {
-	log.Printf("[*] Starting stop request at %s", time.Now().UTC().Format(time.RFC3339))
-
 	cubeIDStr := c.QueryParam("cube_id")
 	if cubeIDStr == "" {
 		log.Printf("[*] Error: No cube ID provided in request")
@@ -116,13 +113,15 @@ func HandleStopCube(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Cube stopped successfully"})
 }
 
+// HandleCommitCube function receives cube_id, new image and tag in query params and commits the cube
 func HandleCommitCube(c echo.Context) error {
-	log.Printf("[*] Starting commit request at %s", time.Now().UTC().Format(time.RFC3339))
-
 	cubeIDStr := c.QueryParam("cube_id")
-	if cubeIDStr == "" {
-		log.Printf("[*] Error: No cube ID provided in request")
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing cube ID"})
+	newImage := c.QueryParam("image")
+	tag := c.QueryParam("tag")
+
+	if newImage == "" || tag == "" || cubeIDStr == "" {
+		log.Printf("[*] Error: Missing image cube_id or name or tag  in request")
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing new image or tag"})
 	}
 
 	cubeID, err := strconv.Atoi(cubeIDStr)
@@ -131,13 +130,6 @@ func HandleCommitCube(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid cube ID"})
 	}
 
-	newImage := c.QueryParam("image")
-	tag := c.QueryParam("tag")
-
-	if newImage == "" || tag == "" {
-		log.Printf("[*] Error: Missing image name or tag in request")
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing new image or tag"})
-	}
 	log.Printf("[*] Processing commit for cube ID: %d with image: %s and tag: %s", cubeID, newImage, tag)
 
 	container, err := database.GetCubeData(cubeID)

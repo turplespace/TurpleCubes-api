@@ -12,7 +12,7 @@ import (
 	"github.com/turplespace/portos/internal/services/docker"
 )
 
-// HandleGetWorkspaces handles the HTTP request to get the list of workspaces with container counts
+// HandleGetWorkspaces handles the HTTP request to get the list of workspaces
 func HandleGetWorkspaces(c echo.Context) error {
 	log.Println("[*] Starting get workspaces request")
 
@@ -81,6 +81,7 @@ func HandleGetWorkspaces(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// HandleCreateWorkspace handles the HTTP request to create a new workspace
 func HandleCreateWorkspace(c echo.Context) error {
 	log.Println("[*] Starting create workspace request")
 
@@ -103,6 +104,11 @@ func HandleCreateWorkspace(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Workspace created successfully"})
 }
 
+/*
+	HandleEditWorkspace handles the HTTP request to edit an existing workspace
+
+request body should contain id name and desc
+*/
 func HandleEditWorkspace(c echo.Context) error {
 	log.Println("[*] Starting edit workspace request")
 
@@ -126,6 +132,10 @@ func HandleEditWorkspace(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Workspace updated successfully"})
 }
 
+/*
+HandleDeleteWorkspace handles the HTTP request to delete an existing workspace
+request quesy param should contain id
+*/
 func HandleDeleteWorkspace(c echo.Context) error {
 	log.Println("[*] Starting delete workspace request")
 

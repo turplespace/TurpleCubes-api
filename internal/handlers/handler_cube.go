@@ -12,8 +12,11 @@ import (
 	"github.com/turplespace/portos/internal/services/docker"
 )
 
+/*
+HandleGetCubeData function receievs cube_id in query params and return GetCubesByIdResponse model as reponse
+*/
 func HandleGetCubeData(c echo.Context) error {
-	log.Printf("[*] Starting get cube data request")
+	log.Printf("[*] Geting cube data request")
 
 	cubeIDStr := c.QueryParam("cube_id")
 	if cubeIDStr == "" {
@@ -49,6 +52,9 @@ func HandleGetCubeData(c echo.Context) error {
 	return c.JSON(http.StatusOK, getCubesByIdResponse)
 }
 
+/*
+HandleGetCubes function returns all the cubes in a workspace
+*/
 func HandleGetCubes(c echo.Context) error {
 	log.Printf("[*] Starting get cubes request ")
 
@@ -95,6 +101,9 @@ func HandleGetCubes(c echo.Context) error {
 	return c.JSON(http.StatusOK, cubesResponse)
 }
 
+/*
+HandleAddCubes function receives workspace_id and cubes in request body and add cubes to workspace
+*/
 func HandleAddCubes(c echo.Context) error {
 	log.Printf("[*] Starting add cubes request")
 
@@ -119,6 +128,9 @@ func HandleAddCubes(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Cubes added successfully"})
 }
 
+/*
+HandleEditCube function receives cube_id in query params and restarts the cube
+*/
 func HandleEditCube(c echo.Context) error {
 	log.Printf("[*] Starting edit cube request")
 
@@ -144,6 +156,9 @@ func HandleEditCube(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Cube updated successfully"})
 }
 
+/*
+HandleDeleteCube function receives cube_id in query params and restarts the cube
+*/
 func HandleDeleteCube(c echo.Context) error {
 	log.Printf("[*] Starting delete cube request")
 

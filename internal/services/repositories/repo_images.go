@@ -9,6 +9,7 @@ import (
 	"github.com/turplespace/portos/internal/models"
 )
 
+// ReadImages reads the images from the JSON file
 func ReadImages() (models.ImagesConfig, error) {
 	var images models.ImagesConfig
 	ex, err := os.Executable()
@@ -40,6 +41,7 @@ func ReadImages() (models.ImagesConfig, error) {
 	return images, nil
 }
 
+// AppendImages appends the image to the images JSON file
 func AppendImages(image models.Image) error {
 	fmt.Println("Reading images")
 	images, err := ReadImages()
@@ -66,6 +68,7 @@ func AppendImages(image models.Image) error {
 	return nil
 }
 
+// WriteImages writes the images to the JSON file
 func WriteImages(images models.ImagesConfig) error {
 	ex, err := os.Executable()
 	if err != nil {

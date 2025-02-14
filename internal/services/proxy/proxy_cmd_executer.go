@@ -7,7 +7,10 @@ import (
 	"path/filepath"
 )
 
-// StopAndRemoveContainer stops and removes the Docker container with the given name.
+/*
+StopAndRemoveContainer stops and removes the Docker container with the given name.
+evey time restating the turplecube the proxy server will be removed and restarted to about container_name already exist error from docker demon
+*/
 func StopAndRemoveContainer() error {
 	containerName := "turplecube-proxy"
 	// Stop the container
@@ -64,7 +67,11 @@ func RestartNginxService() error {
 	return nil
 }
 
-// RemoveDataInFolder removes all data in the specified folder.
+/*
+RemoveDataInFolder removes all data in the specified folder.
+the proxy data will be deleted while restarting the turplecubes
+to avoid domain not found error in ngxin
+*/
 func RemoveDataInFolder() error {
 	ex, err := os.Executable()
 	if err != nil {
@@ -77,18 +84,19 @@ func RemoveDataInFolder() error {
 		return fmt.Errorf("configuration folder does not exist: %s", folder)
 	}
 
-	// Remove all files in the folder
+	// Open the folder
 	dir, err := os.Open(folder)
 	if err != nil {
 		return err
 	}
 	defer dir.Close()
 
+	// Read all files in the folder
 	names, err := dir.Readdirnames(-1)
 	if err != nil {
 		return err
 	}
-
+	// Remove all files in the folder
 	for _, name := range names {
 		err = os.RemoveAll(filepath.Join(folder, name))
 		if err != nil {

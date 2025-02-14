@@ -47,6 +47,7 @@ var (
 	once       sync.Once
 )
 
+// GetLogService returns a singleton instance of LogService
 func GetLogService() *LogService {
 	once.Do(func() {
 		ls := &LogService{
