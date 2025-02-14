@@ -35,3 +35,8 @@ type WorkspaceResponse struct {
 	TotalRunningCubes int                            `json:"total_running_cubes"`
 	Workspaces        []WorkspaceWithContainerCounts `json:"workspaces"`
 }
+
+type ImagesResponse struct {
+	CustomImages      []Image `json:"custom_images"`
+	TotalCustomImages int     `json:"total_custom_images"`
+}

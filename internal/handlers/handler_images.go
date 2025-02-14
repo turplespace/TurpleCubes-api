@@ -10,11 +10,6 @@ import (
 	"github.com/turplespace/portos/internal/services/repositories"
 )
 
-type ImagesResponse struct {
-	CustomImages      []models.Image `json:"custom_images"`
-	TotalCustomImages int            `json:"total_custom_images"`
-}
-
 // HandleGetImages function returns all the images in the repository
 func HandleGetImages(c echo.Context) error {
 	log.Printf("[*] Starting get images request at %s", time.Now().UTC().Format(time.RFC3339))
@@ -32,7 +27,7 @@ func HandleGetImages(c echo.Context) error {
 	log.Printf("[*] Image Custom counts: %d", totalCustomImages)
 
 	// Construct the response structure
-	response := ImagesResponse{
+	response := models.ImagesResponse{
 		CustomImages:      images.CustomImages,
 		TotalCustomImages: totalCustomImages,
 	}

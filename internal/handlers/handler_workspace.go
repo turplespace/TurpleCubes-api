@@ -85,10 +85,7 @@ func HandleGetWorkspaces(c echo.Context) error {
 func HandleCreateWorkspace(c echo.Context) error {
 	log.Println("[*] Starting create workspace request")
 
-	var req struct {
-		Name string `json:"name"`
-		Desc string `json:"desc"`
-	}
+	var req models.CreateWorkspaceRequest
 
 	if err := c.Bind(&req); err != nil {
 		log.Printf("[*] Error: Invalid request body - %v", err)
@@ -105,19 +102,13 @@ func HandleCreateWorkspace(c echo.Context) error {
 }
 
 /*
-	HandleEditWorkspace handles the HTTP request to edit an existing workspace
-
+HandleEditWorkspace handles the HTTP request to edit an existing workspace
 request body should contain id name and desc
 */
 func HandleEditWorkspace(c echo.Context) error {
 	log.Println("[*] Starting edit workspace request")
 
-	var req struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-		Desc string `json:"desc"`
-	}
-
+	var req models.EditWorkspaceRequest
 	if err := c.Bind(&req); err != nil {
 		log.Printf("[*] Error: Invalid request body - %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid request: %v", err)})

@@ -5,18 +5,13 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/turplespace/portos/internal/models"
 	"github.com/turplespace/portos/internal/services/proxy"
 )
 
-type ProxyRequest struct {
-	IP        string `json:"ip"`
-	Port      int    `json:"port"`
-	Subdomain string `json:"subdomain"`
-}
-
 // HandlePostProxy function receives IP, Port and Subdomain in request body and generates a proxy configuration
 func HandlePostProxy(c echo.Context) error {
-	var req ProxyRequest
+	var req models.ProxyRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}

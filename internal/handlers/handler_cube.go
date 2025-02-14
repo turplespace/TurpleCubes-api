@@ -107,11 +107,7 @@ HandleAddCubes function receives workspace_id and cubes in request body and add 
 func HandleAddCubes(c echo.Context) error {
 	log.Printf("[*] Starting add cubes request")
 
-	var req struct {
-		WorkspaceID int                `json:"workspace_id"`
-		Cubes       []models.Container `json:"cubes"`
-	}
-
+	var req models.AddCubesRequest
 	if err := c.Bind(&req); err != nil {
 		log.Printf("[*] Error: Invalid request body - %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid request: %v", err)})
@@ -134,10 +130,7 @@ HandleEditCube function receives cube_id in query params and restarts the cube
 func HandleEditCube(c echo.Context) error {
 	log.Printf("[*] Starting edit cube request")
 
-	var req struct {
-		CubeID      int              `json:"cube_id"`
-		UpdatedCube models.Container `json:"updated_cube"`
-	}
+	var req models.EditCubeRequest
 
 	if err := c.Bind(&req); err != nil {
 		log.Printf("[*] Error: Invalid request body - %v", err)
