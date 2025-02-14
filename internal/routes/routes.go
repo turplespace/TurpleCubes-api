@@ -50,7 +50,6 @@ func SetupRoutes() {
 	http.Handle("/api/cube/delete", Cors(http.HandlerFunc(handlers.HandleDeleteCube)))
 
 	http.Handle("/api/cube", Cors(http.HandlerFunc(handlers.HandleGetCubeData)))
-
 	http.Handle("/api/cube/deploy", Cors(http.HandlerFunc(handlers.HandleDeployCube)))
 	http.Handle("/api/cube/redeploy", Cors(http.HandlerFunc(handlers.HandleRedeployCube)))
 	http.Handle("/api/cube/stop", Cors(http.HandlerFunc(handlers.HandleStopCube)))

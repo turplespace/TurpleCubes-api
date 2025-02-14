@@ -30,8 +30,6 @@ func HandleLogStream(w http.ResponseWriter, r *http.Request) {
 	msgChan := logService.Subscribe()
 	defer logService.Unsubscribe(msgChan)
 
-	log.Printf("New WebSocket client connected from %s", r.RemoteAddr)
-
 	// Handle WebSocket connection closure
 	go func() {
 		for {
