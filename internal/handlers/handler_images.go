@@ -11,10 +11,7 @@ import (
 )
 
 type ImagesResponse struct {
-	RepoImages        []models.Image `json:"repo_images"`
 	CustomImages      []models.Image `json:"custom_images"`
-	TotalImages       int            `json:"total_images"`
-	TotalRepoImages   int            `json:"total_repo_images"`
 	TotalCustomImages int            `json:"total_custom_images"`
 }
 
@@ -30,20 +27,15 @@ func HandleGetImages(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("[GET-IMAGES] Successfully read images from repository")
 
-	// Calculate the totals
-	totalRepoImages := len(images.RepoImages)
 	totalCustomImages := len(images.CustomImages)
-	totalImages := totalRepoImages + totalCustomImages
 
-	log.Printf("[GET-IMAGES] Image counts - Repo: %d, Custom: %d, Total: %d",
-		totalRepoImages, totalCustomImages, totalImages)
+	log.Printf("[GET-IMAGES] Image counts -Custom: %d",
+		totalCustomImages)
 
 	// Construct the response structure
 	response := ImagesResponse{
-		RepoImages:        images.RepoImages,
+
 		CustomImages:      images.CustomImages,
-		TotalImages:       totalImages,
-		TotalRepoImages:   totalRepoImages,
 		TotalCustomImages: totalCustomImages,
 	}
 
