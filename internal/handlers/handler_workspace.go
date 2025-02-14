@@ -12,14 +12,6 @@ import (
 	"github.com/turplespace/portos/internal/services/docker"
 )
 
-// WorkspaceResponse holds the total counts and the list of workspaces with container counts
-type WorkspaceResponse struct {
-	TotalWorkspaces   int                                   `json:"total_workspaces"`
-	TotalCubes        int                                   `json:"total_cubes"`
-	TotalRunningCubes int                                   `json:"total_running_cubes"`
-	Workspaces        []models.WorkspaceWithContainerCounts `json:"workspaces"`
-}
-
 // HandleGetWorkspaces handles the HTTP request to get the list of workspaces with container counts
 func HandleGetWorkspaces(c echo.Context) error {
 	log.Println("[*] Starting get workspaces request")
@@ -78,7 +70,7 @@ func HandleGetWorkspaces(c echo.Context) error {
 	}
 
 	// Create the response object
-	response := WorkspaceResponse{
+	response := models.WorkspaceResponse{
 		TotalWorkspaces:   totalWorkspaces,
 		TotalCubes:        totalCubes,
 		TotalRunningCubes: totalRunningCubes,

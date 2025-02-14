@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/turplespace/portos/internal/database"
@@ -51,7 +50,7 @@ func HandleGetCubeData(c echo.Context) error {
 }
 
 func HandleGetCubes(c echo.Context) error {
-	log.Printf("[*] Starting get cubes request", time.Now().UTC().Format(time.RFC3339))
+	log.Printf("[*] Starting get cubes request ")
 
 	workspaceIDStr := c.QueryParam("workspace_id")
 	if workspaceIDStr == "" {
@@ -97,7 +96,7 @@ func HandleGetCubes(c echo.Context) error {
 }
 
 func HandleAddCubes(c echo.Context) error {
-	log.Printf("[*] Starting add cubes request", time.Now().UTC().Format(time.RFC3339))
+	log.Printf("[*] Starting add cubes request")
 
 	var req struct {
 		WorkspaceID int                `json:"workspace_id"`
@@ -121,7 +120,7 @@ func HandleAddCubes(c echo.Context) error {
 }
 
 func HandleEditCube(c echo.Context) error {
-	log.Printf("[*] Starting edit cube request", time.Now().UTC().Format(time.RFC3339))
+	log.Printf("[*] Starting edit cube request")
 
 	var req struct {
 		CubeID      int              `json:"cube_id"`
@@ -146,7 +145,7 @@ func HandleEditCube(c echo.Context) error {
 }
 
 func HandleDeleteCube(c echo.Context) error {
-	log.Printf("[*] Starting delete cube request", time.Now().UTC().Format(time.RFC3339))
+	log.Printf("[*] Starting delete cube request")
 
 	cubeIDStr := c.QueryParam("cube_id")
 	if cubeIDStr == "" {
