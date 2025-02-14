@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	"github.com/turplespace/portos/internal/models"
 	"github.com/turplespace/portos/internal/services/repositories"
 )
@@ -15,39 +15,27 @@ type ImagesResponse struct {
 	TotalCustomImages int            `json:"total_custom_images"`
 }
 
-func HandleGetImages(w http.ResponseWriter, r *http.Request) {
+func HandleGetImages(c echo.Context) error {
 	log.Printf("[*] Starting get images request at %s", time.Now().UTC().Format(time.RFC3339))
 
 	// Read the images from the JSON file
 	images, err := repositories.ReadImages()
 	if err != nil {
 		log.Printf("[*] Error: Unable to read images from file: %v", err)
-		http.Error(w, "Unable to open images.json file", http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Unable to open images.json file"})
 	}
 	log.Printf("[*] Successfully read images from repository")
 
 	totalCustomImages := len(images.CustomImages)
 
-	log.Printf("[*] Image counts -Custom: %d",
-		totalCustomImages)
+	log.Printf("[*] Image Custom counts: %d", totalCustomImages)
 
 	// Construct the response structure
 	response := ImagesResponse{
-
 		CustomImages:      images.CustomImages,
 		TotalCustomImages: totalCustomImages,
 	}
 
-	// Set the response header to application/json
-	w.Header().Set("Content-Type", "application/json")
-
 	// Send the JSON response
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Printf("[*] Error: Failed to encode response: %v", err)
-		http.Error(w, "Error sending response", http.StatusInternalServerError)
-		return
-	}
-	log.Printf("[*] Successfully sent images response")
+	return c.JSON(http.StatusOK, response)
 }

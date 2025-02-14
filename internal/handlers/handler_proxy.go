@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"github.com/turplespace/portos/internal/services/proxy"
 )
 
@@ -14,29 +14,25 @@ type ProxyRequest struct {
 	Subdomain string `json:"subdomain"`
 }
 
-func HandlePostProxy(w http.ResponseWriter, r *http.Request) {
+func HandlePostProxy(c echo.Context) error {
 	var req ProxyRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
-		return
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
 
 	if req.IP == "" || req.Port == 0 || req.Subdomain == "" {
-		http.Error(w, "Missing required fields", http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing required fields"})
 	}
 
 	if err := proxy.GenerateNginxProxyConfig(req.IP, req.Port, req.Subdomain); err != nil {
 		fmt.Println(err)
-		http.Error(w, "Failed to generate proxy config", http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate proxy config"})
 	}
 
 	if err := proxy.RestartNginxService(); err != nil {
 		fmt.Println(err)
-		http.Error(w, "Failed to restart Nginx service", http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to restart Nginx service"})
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Proxy configuration generated successfully"))
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Proxy configuration generated successfully"})
 }

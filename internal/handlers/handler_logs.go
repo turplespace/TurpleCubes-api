@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/labstack/echo/v4"
 	"github.com/turplespace/portos/internal/services"
 )
 
@@ -17,12 +18,11 @@ var upgrader = websocket.Upgrader{
 }
 
 // HandleLogStream handles WebSocket connections for real-time log streaming
-func HandleLogStream(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+func HandleLogStream(c echo.Context) error {
+	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Printf("Failed to upgrade connection: %v", err)
-		http.Error(w, "Could not upgrade connection", http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not upgrade connection"})
 	}
 	defer conn.Close()
 
@@ -49,4 +49,6 @@ func HandleLogStream(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+
+	return nil
 }

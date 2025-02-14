@@ -2,29 +2,14 @@ package routes
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/turplespace/portos/internal/handlers"
 )
 
-// CORS to allow requests from all origins
-func Cors(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		// Handle preflight request
-		if r.Method == http.MethodOptions {
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func SetupRoutes() {
+func SetupRoutes(e *echo.Echo) {
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
@@ -32,32 +17,45 @@ func SetupRoutes() {
 	fmt.Println(ex)
 	path := fmt.Sprintf("%s_web", ex)
 
-	fs := http.FileServer(http.Dir(path))
-	http.Handle("/", Cors(fs))
+	// Middleware
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
+	}))
 
-	http.Handle("/api/workspaces", Cors(http.HandlerFunc(handlers.HandleGetWorkspaces)))
-	http.Handle("/api/workspace/create", Cors(http.HandlerFunc(handlers.HandleCreateWorkspace)))
-	http.Handle("/api/workspace/edit", Cors(http.HandlerFunc(handlers.HandleEditWorkspace)))
-	http.Handle("/api/workspace/delete", Cors(http.HandlerFunc(handlers.HandleDeleteWorkspace)))
+	// Static files
+	e.Static("/", path)
 
-	http.Handle("/api/workspace/deploy", Cors(http.HandlerFunc(handlers.HandleDeployWorkspace)))
-	http.Handle("/api/workspace/redeploy", Cors(http.HandlerFunc(handlers.HandleRedeployWorkspace)))
-	http.Handle("/api/workspace/stop", Cors(http.HandlerFunc(handlers.HandleStopWorkspace)))
+	// Workspace routes
+	e.GET("/api/workspaces", handlers.HandleGetWorkspaces)
+	e.POST("/api/workspace/create", handlers.HandleCreateWorkspace)
+	e.PUT("/api/workspace/edit", handlers.HandleEditWorkspace)
+	e.DELETE("/api/workspace/delete", handlers.HandleDeleteWorkspace)
 
-	http.Handle("/api/cubes", Cors(http.HandlerFunc(handlers.HandleGetCubes)))
-	http.Handle("/api/cube/add", Cors(http.HandlerFunc(handlers.HandleAddCubes)))
-	http.Handle("/api/cube/edit", Cors(http.HandlerFunc(handlers.HandleEditCube)))
-	http.Handle("/api/cube/delete", Cors(http.HandlerFunc(handlers.HandleDeleteCube)))
+	// Workspace operations routes
+	e.POST("/api/workspace/deploy", handlers.HandleDeployWorkspace)
+	e.POST("/api/workspace/redeploy", handlers.HandleRedeployWorkspace)
+	e.POST("/api/workspace/stop", handlers.HandleStopWorkspace)
 
-	http.Handle("/api/cube", Cors(http.HandlerFunc(handlers.HandleGetCubeData)))
-	http.Handle("/api/cube/deploy", Cors(http.HandlerFunc(handlers.HandleDeployCube)))
-	http.Handle("/api/cube/redeploy", Cors(http.HandlerFunc(handlers.HandleRedeployCube)))
-	http.Handle("/api/cube/stop", Cors(http.HandlerFunc(handlers.HandleStopCube)))
-	http.Handle("/api/cube/commit", Cors(http.HandlerFunc(handlers.HandleCommitCube)))
+	// Cube routes
+	e.GET("/api/cubes", handlers.HandleGetCubes)
+	e.POST("/api/cube/add", handlers.HandleAddCubes)
+	e.PUT("/api/cube/edit", handlers.HandleEditCube)
+	e.DELETE("/api/cube/delete", handlers.HandleDeleteCube)
 
-	http.Handle("/api/proxy", Cors(http.HandlerFunc(handlers.HandlePostProxy)))
+	// Cube operations routes
+	e.GET("/api/cube", handlers.HandleGetCubeData)
+	e.POST("/api/cube/deploy", handlers.HandleDeployCube)
+	e.POST("/api/cube/redeploy", handlers.HandleRedeployCube)
+	e.POST("/api/cube/stop", handlers.HandleStopCube)
+	e.POST("/api/cube/commit", handlers.HandleCommitCube)
 
-	http.Handle("/api/images", Cors(http.HandlerFunc(handlers.HandleGetImages)))
-	http.Handle("/api/logs/stream", Cors(http.HandlerFunc(handlers.HandleLogStream)))
+	// Proxy route
+	e.POST("/api/proxy", handlers.HandlePostProxy)
 
+	// Images route
+	e.GET("/api/images", handlers.HandleGetImages)
+
+	// Logs route
+	e.GET("/api/logs/stream", handlers.HandleLogStream)
 }

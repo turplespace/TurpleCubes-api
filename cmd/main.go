@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"net/http"
 
+	"github.com/labstack/echo/v4"
 	"github.com/turplespace/portos/internal/database"
 	"github.com/turplespace/portos/internal/routes"
 	"github.com/turplespace/portos/internal/services"
@@ -11,8 +11,10 @@ import (
 )
 
 func main() {
+	e := echo.New()
+
 	logService := services.GetLogService()
-	routes.SetupRoutes()
+	routes.SetupRoutes(e)
 	database.Init()
 	err := proxy.RemoveDataInFolder()
 	if err != nil {
@@ -31,7 +33,7 @@ func main() {
 		log.Fatalf("Failed to restart Nginx service: %v", err)
 	}
 	log.Print("Server starting on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := e.Start(":8080"); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 	logService.Info("Custom info message")

@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/labstack/echo/v4"
 	"github.com/turplespace/portos/internal/database"
 	"github.com/turplespace/portos/internal/models"
 	"github.com/turplespace/portos/internal/services/docker"
@@ -21,43 +21,33 @@ type WorkspaceResponse struct {
 }
 
 // HandleGetWorkspaces handles the HTTP request to get the list of workspaces with container counts
-func HandleGetWorkspaces(w http.ResponseWriter, r *http.Request) {
+func HandleGetWorkspaces(c echo.Context) error {
 	log.Println("[*] Starting get workspaces request")
-
-	if r.Method != http.MethodGet {
-		log.Printf("[*] Error: Invalid method %s used instead of GET", r.Method)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	// Retrieve the list of workspaces
 	workspaces, err := database.GetWorkspaces()
 	if err != nil {
 		log.Printf("[*] Error: Failed to get workspaces: %v", err)
-		http.Error(w, fmt.Sprintf("Failed to get workspaces: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to get workspaces: %v", err)})
 	}
 
 	// Get the total counts
 	totalWorkspaces, err := database.CountWorkspaces()
 	if err != nil {
 		log.Printf("[*] Error: Failed to count workspaces: %v", err)
-		http.Error(w, fmt.Sprintf("Failed to count workspaces: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to count workspaces: %v", err)})
 	}
 
 	totalCubes, err := database.CountCubes()
 	if err != nil {
 		log.Printf("[*] Error: Failed to count cubes: %v", err)
-		http.Error(w, fmt.Sprintf("Failed to count cubes: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to count cubes: %v", err)})
 	}
 
 	totalRunningCubes, err := docker.CountContainersByLabel("service", "turplespace")
 	if err != nil {
 		log.Printf("[*] Error: Failed to count running containers: %v", err)
-		http.Error(w, fmt.Sprintf("Failed to count running containers: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to count running containers: %v", err)})
 	}
 
 	// Create a slice to hold workspaces with container counts
@@ -68,15 +58,13 @@ func HandleGetWorkspaces(w http.ResponseWriter, r *http.Request) {
 		totalCount, err := database.CountContainersByWorkspaceID(workspace.ID)
 		if err != nil {
 			log.Printf("[*] Error: Failed to count containers for workspace %d: %v", workspace.ID, err)
-			http.Error(w, fmt.Sprintf("Failed to count containers for workspace %d: %v", workspace.ID, err), http.StatusInternalServerError)
-			return
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to count containers for workspace %d: %v", workspace.ID, err)})
 		}
 
 		runningCount, err := docker.CountContainersByLabel("workspace_id", fmt.Sprintf("%d", workspace.ID))
 		if err != nil {
 			log.Printf("[*] Error: Failed to count running containers for workspace %d: %v", workspace.ID, err)
-			http.Error(w, fmt.Sprintf("Failed to count running containers for workspace %d: %v", workspace.ID, err), http.StatusInternalServerError)
-			return
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to count running containers for workspace %d: %v", workspace.ID, err)})
 		}
 
 		workspacesWithCounts = append(workspacesWithCounts, models.WorkspaceWithContainerCounts{
@@ -98,50 +86,33 @@ func HandleGetWorkspaces(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Encode the response as JSON
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-	log.Println("[*] Successfully sent workspaces response")
+	return c.JSON(http.StatusOK, response)
 }
 
-func HandleCreateWorkspace(w http.ResponseWriter, r *http.Request) {
+func HandleCreateWorkspace(c echo.Context) error {
 	log.Println("[*] Starting create workspace request")
-
-	if r.Method != http.MethodPost {
-		log.Printf("[*] Error: Invalid method %s used instead of POST", r.Method)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	var req struct {
 		Name string `json:"name"`
 		Desc string `json:"desc"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := c.Bind(&req); err != nil {
 		log.Printf("[*] Error: Invalid request body - %v", err)
-		http.Error(w, fmt.Sprintf("Invalid request: %v", err), http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid request: %v", err)})
 	}
 
 	err := database.CreateWorkspace(req.Name, req.Desc)
 	if err != nil {
 		log.Printf("[*] Error: Failed to create workspace: %v", err)
-		http.Error(w, fmt.Sprintf("Failed to create workspace: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to create workspace: %v", err)})
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"message": "Workspace created successfully"})
-	log.Println("[*] Successfully created workspace")
+	return c.JSON(http.StatusOK, map[string]string{"message": "Workspace created successfully"})
 }
 
-func HandleEditWorkspace(w http.ResponseWriter, r *http.Request) {
+func HandleEditWorkspace(c echo.Context) error {
 	log.Println("[*] Starting edit workspace request")
-
-	if r.Method != http.MethodPut {
-		log.Printf("[*] Error: Invalid method %s used instead of PUT", r.Method)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	var req struct {
 		ID   int    `json:"id"`
@@ -149,52 +120,40 @@ func HandleEditWorkspace(w http.ResponseWriter, r *http.Request) {
 		Desc string `json:"desc"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := c.Bind(&req); err != nil {
 		log.Printf("[*] Error: Invalid request body - %v", err)
-		http.Error(w, fmt.Sprintf("Invalid request: %v", err), http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid request: %v", err)})
 	}
 
 	err := database.EditWorkspace(req.ID, req.Name, req.Desc)
 	if err != nil {
 		log.Printf("[*] Error: Failed to edit workspace: %v", err)
-		http.Error(w, fmt.Sprintf("Failed to edit workspace: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to edit workspace: %v", err)})
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"message": "Workspace updated successfully"})
-	log.Printf("[*] Successfully updated workspace ID: %d", req.ID)
+	return c.JSON(http.StatusOK, map[string]string{"message": "Workspace updated successfully"})
 }
 
-func HandleDeleteWorkspace(w http.ResponseWriter, r *http.Request) {
+func HandleDeleteWorkspace(c echo.Context) error {
 	log.Println("[*] Starting delete workspace request")
 
-	if r.Method != http.MethodDelete {
-		log.Printf("[*] Error: Invalid method %s used instead of DELETE", r.Method)
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	idStr := r.URL.Query().Get("id")
+	idStr := c.QueryParam("id")
 	if idStr == "" {
 		log.Println("[*] Error: Missing workspace ID")
-		http.Error(w, "Missing workspace ID", http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing workspace ID"})
 	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		log.Printf("[*] Error: Invalid workspace ID format: %s - %v", idStr, err)
-		http.Error(w, "Invalid workspace ID", http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid workspace ID"})
 	}
 
 	// Stopping Cubes
 	cubes, err := database.ListCubes(id)
 	if err != nil {
 		log.Printf("[*] Error: Failed to get cubes for workspace ID %d: %v", id, err)
-		http.Error(w, fmt.Sprintf("Failed to get cubes: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to get cubes: %v", err)})
 	}
 
 	for _, cube := range cubes {
@@ -208,18 +167,15 @@ func HandleDeleteWorkspace(w http.ResponseWriter, r *http.Request) {
 	err = database.DeleteContainersByWorkspaceID(id)
 	if err != nil {
 		log.Printf("[*] Error: Failed to delete containers for workspace ID %d: %v", id, err)
-		http.Error(w, fmt.Sprintf("Failed to delete containers: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to delete containers: %v", err)})
 	}
 
 	// Deleting Workspace from the DB
 	err = database.DeleteWorkspace(id)
 	if err != nil {
 		log.Printf("[*] Error: Failed to delete workspace ID %d: %v", id, err)
-		http.Error(w, fmt.Sprintf("Failed to delete workspace: %v", err), http.StatusInternalServerError)
-		return
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to delete workspace: %v", err)})
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"message": "Workspace deleted successfully"})
-	log.Printf("[*] Successfully deleted workspace ID: %d", id)
+	return c.JSON(http.StatusOK, map[string]string{"message": "Workspace deleted successfully"})
 }
