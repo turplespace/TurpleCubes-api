@@ -16,20 +16,20 @@ type ImagesResponse struct {
 }
 
 func HandleGetImages(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[GET-IMAGES] Starting get images request at %s", time.Now().UTC().Format(time.RFC3339))
+	log.Printf("[*] Starting get images request at %s", time.Now().UTC().Format(time.RFC3339))
 
 	// Read the images from the JSON file
 	images, err := repositories.ReadImages()
 	if err != nil {
-		log.Printf("[GET-IMAGES] Error: Unable to read images from file: %v", err)
+		log.Printf("[*] Error: Unable to read images from file: %v", err)
 		http.Error(w, "Unable to open images.json file", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("[GET-IMAGES] Successfully read images from repository")
+	log.Printf("[*] Successfully read images from repository")
 
 	totalCustomImages := len(images.CustomImages)
 
-	log.Printf("[GET-IMAGES] Image counts -Custom: %d",
+	log.Printf("[*] Image counts -Custom: %d",
 		totalCustomImages)
 
 	// Construct the response structure
@@ -45,9 +45,9 @@ func HandleGetImages(w http.ResponseWriter, r *http.Request) {
 	// Send the JSON response
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
-		log.Printf("[GET-IMAGES] Error: Failed to encode response: %v", err)
+		log.Printf("[*] Error: Failed to encode response: %v", err)
 		http.Error(w, "Error sending response", http.StatusInternalServerError)
 		return
 	}
-	log.Printf("[GET-IMAGES] Successfully sent images response")
+	log.Printf("[*] Successfully sent images response")
 }
