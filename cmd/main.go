@@ -32,6 +32,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to restart Nginx service: %v", err)
 	}
+	err = proxy.RestartNginxService()
+	if err != nil {
+		log.Fatalf("Failed to restart Nginx service: %v", err)
+	}
 	log.Print("Server starting on :8080")
 	if err := e.Start(":8080"); err != nil {
 		log.Fatalf("Server failed to start: %v", err)

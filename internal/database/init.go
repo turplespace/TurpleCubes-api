@@ -56,6 +56,22 @@ func Init() {
 		log.Fatal(err)
 	}
 
+	// Create the proxy table
+	createProxyTableSQL := `CREATE TABLE IF NOT EXISTS proxy (
+        "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+        "cube_id" INTEGER,
+        "domain" TEXT,
+        "port" INTEGER,
+        "type" TEXT,
+        "default" BOOLEAN,
+        "created_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(cube_id) REFERENCES container(id) ON DELETE CASCADE
+    );`
+	_, err = db.Exec(createProxyTableSQL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log.Println("Tables created successfully!")
 }
 

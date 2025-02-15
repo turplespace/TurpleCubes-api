@@ -49,8 +49,14 @@ func SetupRoutes(e *echo.Echo) {
 	cubeGroup.POST("/commit", handlers.HandleCommitCube)
 
 	// Proxy route
-	e.POST("/api/proxy", handlers.HandlePostProxy)
-
+	proxyGroup := e.Group("/api/proxy")
+	proxyGroup.GET("/proxy/:id", handlers.HandleGetProxyByID)
+	proxyGroup.GET("/proxies/:cube_id", handlers.HandleGetProxiesByCubeID)
+	proxyGroup.POST("/add", handlers.HandleAddProxy)
+	proxyGroup.PUT("/edit/:id", handlers.HandleEditProxyByID)
+	proxyGroup.DELETE("/delete/:id", handlers.HandleDeleteProxyByID)
+	proxyGroup.DELETE("/delete/cube/:cube_id", handlers.HandleDeleteProxiesByCubeID)
+	proxyGroup.POST("/start", handlers.HandlePostStartProxy)
 	// Images route
 	e.GET("/api/images", handlers.HandleGetImages)
 
