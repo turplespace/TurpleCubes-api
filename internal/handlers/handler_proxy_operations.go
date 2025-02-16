@@ -11,7 +11,7 @@ import (
 )
 
 type ProxyRequest struct {
-	ID int `json:"id"`
+	ProxyID int `json:"proxy_id"`
 }
 
 // HandlePostProxy function receives ID in request body, fetches the proxy data from the database, and generates a proxy configuration
@@ -22,17 +22,17 @@ func HandlePostStartProxy(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
 
-	if req.ID == 0 {
+	if req.ProxyID == 0 {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing required fields"})
 	}
 
-	proxyData, err := database.GetProxyByID(req.ID)
+	proxyData, err := database.GetProxyByID(req.ProxyID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch proxy data"})
 	}
 
 	// Get cube data from the database
-	container, err := database.GetCubeData(req.ID)
+	container, err := database.GetCubeData(proxyData.CubeID)
 	if err != nil {
 
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to get cube data: %v", err)})
