@@ -20,17 +20,26 @@ type Workspace struct {
 }
 
 // CreateWorkspace to create a new workspace
-func CreateWorkspace(name string, desc string) error {
+func CreateWorkspace(name string, desc string) (int64, error) {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)
 	if err != nil {
-		return fmt.Errorf("failed to open database: %v", err)
+		return 0, fmt.Errorf("failed to open database: %v", err)
 	}
 	defer db.Close()
 
 	insertSQL := `INSERT INTO workspace (name, desc) VALUES (?, ?)`
-	_, err = db.Exec(insertSQL, name, desc)
-	return err
+	result, err := db.Exec(insertSQL, name, desc)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to retrieve last insert id: %v", err)
+	}
+
+	return id, nil
 }
 
 // IncContainerCount to update the container count for a specific workspace

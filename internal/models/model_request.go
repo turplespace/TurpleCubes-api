@@ -13,7 +13,6 @@ type AddCubesRequest struct {
 }
 
 type EditWorkspaceRequest struct {
-	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Desc string `json:"desc"`
 }

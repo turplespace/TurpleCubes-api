@@ -53,55 +53,6 @@ func HandleGetCubeData(c echo.Context) error {
 }
 
 /*
-HandleGetCubes function returns all the cubes in a workspace
-*/
-func HandleGetCubes(c echo.Context) error {
-	log.Printf("[*] Starting get cubes request ")
-
-	workspaceIDStr := c.QueryParam("workspace_id")
-	if workspaceIDStr == "" {
-		log.Printf("[*] Error: Missing workspace ID in request")
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing workspace ID"})
-	}
-
-	workspaceID, err := strconv.Atoi(workspaceIDStr)
-	if err != nil {
-		log.Printf("[*] Error: Invalid workspace ID format: %s - %v", workspaceIDStr, err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid workspace ID"})
-	}
-
-	cubes, err := database.ListCubes(workspaceID)
-	if err != nil {
-		log.Printf("[*] Database error while fetching cubes: %v", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to get cubes: %v", err)})
-	}
-	log.Printf("[*] Successfully retrieved %d cubes for workspace ID: %d", len(cubes), workspaceID)
-
-	var cubesResponse []models.GetCubesResponse
-	for _, cube := range cubes {
-		status, err := docker.GetContainerStatus(cube.Name)
-		if err != nil {
-			log.Printf("[*] Warning: Unable to get status for container %s: %v", cube.Name, err)
-			status = "unknown"
-		}
-		ipAddress, err := docker.GetContainerIPAddress(cube.Name)
-		if err != nil {
-			log.Printf("[*] Warning: Unable to get IP address for container %s: %v", cube.Name, err)
-			ipAddress = "unknown"
-		}
-		cubesResponse = append(cubesResponse, models.GetCubesResponse{
-			ContainerID:   cube.ID,
-			Image:         cube.Image,
-			ContainerName: cube.Name,
-			IPAddress:     ipAddress,
-			Status:        status,
-		})
-	}
-
-	return c.JSON(http.StatusOK, cubesResponse)
-}
-
-/*
 HandleAddCubes function receives workspace_id and cubes in request body and add cubes to workspace
 */
 func HandleAddCubes(c echo.Context) error {

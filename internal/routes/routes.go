@@ -28,17 +28,18 @@ func SetupRoutes(e *echo.Echo) {
 
 	// Workspace routes
 	workspaceGroup := e.Group("/api/workspace")
-	workspaceGroup.GET("/workspaces", handlers.HandleGetWorkspaces)
-	workspaceGroup.POST("/create", handlers.HandleCreateWorkspace)
-	workspaceGroup.PUT("/edit", handlers.HandleEditWorkspace)
-	workspaceGroup.DELETE("/delete", handlers.HandleDeleteWorkspace)
-	workspaceGroup.POST("/deploy", handlers.HandleDeployWorkspace)
-	workspaceGroup.POST("/redeploy", handlers.HandleRedeployWorkspace)
-	workspaceGroup.POST("/stop", handlers.HandleStopWorkspace)
+	workspaceGroup.GET("", handlers.HandleGetWorkspaces)
+	workspaceGroup.POST("", handlers.HandleCreateWorkspace)
+	workspaceGroup.PUT("/:workspaceID", handlers.HandleEditWorkspace)
+	workspaceGroup.DELETE("/:workspaceID", handlers.HandleDeleteWorkspace)
+	workspaceGroup.GET("/:workspaceID", handlers.HandleGetWorkspaceData)
+	workspaceGroup.POST("/:workspaceID/deploy", handlers.HandleDeployWorkspace)
+	workspaceGroup.POST("/:workspaceID/redeploy", handlers.HandleRedeployWorkspace)
+	workspaceGroup.POST("/:workspaceID/stop", handlers.HandleStopWorkspace)
 
 	// Cube routes
 	cubeGroup := e.Group("/api/cube")
-	cubeGroup.GET("/cubes", handlers.HandleGetCubes)
+
 	cubeGroup.POST("/add", handlers.HandleAddCubes)
 	cubeGroup.PUT("/edit", handlers.HandleEditCube)
 	cubeGroup.DELETE("/delete", handlers.HandleDeleteCube)

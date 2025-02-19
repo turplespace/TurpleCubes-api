@@ -13,7 +13,7 @@ import (
 // HandleDeployWorkspace function receives workspace_id in query params and deploys the workspace
 func HandleDeployWorkspace(c echo.Context) error {
 	// Get workspace ID from query parameters
-	workspaceIDStr := c.QueryParam("workspace_id")
+	workspaceIDStr := c.Param("workspaceID")
 	if workspaceIDStr == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing workspace ID"})
 	}
@@ -42,7 +42,7 @@ func HandleDeployWorkspace(c echo.Context) error {
 
 func HandleRedeployWorkspace(c echo.Context) error {
 	// Get workspace ID from query parameters
-	workspaceIDStr := c.QueryParam("workspace_id")
+	workspaceIDStr := c.Param("workspaceID")
 	if workspaceIDStr == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing workspace ID"})
 	}
@@ -71,7 +71,7 @@ func HandleRedeployWorkspace(c echo.Context) error {
 
 func HandleStopWorkspace(c echo.Context) error {
 	// Get workspace ID from query parameters
-	workspaceIDStr := c.QueryParam("workspace_id")
+	workspaceIDStr := c.Param("workspaceID")
 	if workspaceIDStr == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing workspace ID"})
 	}
