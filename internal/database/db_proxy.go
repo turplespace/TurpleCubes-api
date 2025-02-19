@@ -6,13 +6,13 @@ import (
 )
 
 type Proxy struct {
-	ID        int
-	CubeID    int
-	Domain    string
-	Port      int
-	Type      string
-	Default   bool
-	CreatedAt string
+	ID        int    `json:"id"`
+	CubeID    int    `json:"cube_id"`
+	Domain    string `json:"domain"`
+	Port      int    `json:"port"`
+	Type      string `json:"type"`
+	Default   bool   `json:"default"`
+	CreatedAt string `json:"created_at"`
 }
 
 func GetProxyByID(id int) (*Proxy, error) {

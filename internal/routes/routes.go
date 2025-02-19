@@ -51,7 +51,7 @@ func SetupRoutes(e *echo.Echo) {
 
 	// Proxy route
 	proxyGroup := e.Group("/api/proxy")
-	proxyGroup.POST("/:proxyID", handlers.HandleAddProxy)
+	proxyGroup.POST("", handlers.HandleAddProxy)
 	proxyGroup.GET("/:proxyID", handlers.HandleGetProxyByID)
 	proxyGroup.PUT("/:proxyID", handlers.HandleEditProxyByID)
 	proxyGroup.DELETE("/:proxyID", handlers.HandleDeleteProxyByID)
