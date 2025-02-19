@@ -11,11 +11,11 @@ import (
 )
 
 // InsertWorkspaceAndCubes inserts a workspace and its associated cubes into the database
-func InsertWorkspaceAndCubes(workspaceID int, cubes []models.Container) error {
+func InsertWorkspaceAndCubes(workspaceID int, cube models.Container) (int64, error) {
 	db_path, _ := GetPath()
 	db, err := sql.Open("sqlite3", db_path)
 	if err != nil {
-		return fmt.Errorf("failed to open database: %v", err)
+		return 0, fmt.Errorf("failed to open database: %v", err)
 	}
 	defer db.Close()
 
@@ -23,24 +23,32 @@ func InsertWorkspaceAndCubes(workspaceID int, cubes []models.Container) error {
 	var exists bool
 	err = db.QueryRow(`SELECT EXISTS(SELECT 1 FROM workspace WHERE id = ?)`, workspaceID).Scan(&exists)
 	if err != nil {
-		return fmt.Errorf("failed to check workspace existence: %v", err)
+		return 0, fmt.Errorf("failed to check workspace existence: %v", err)
 	}
 	if !exists {
-		return fmt.Errorf("workspace with ID %d does not exist", workspaceID)
+		return 0, fmt.Errorf("workspace with ID %d does not exist", workspaceID)
 	}
 
 	// Insert the cubes
-	for _, cube := range cubes {
-		_, err := db.Exec(`INSERT INTO container (workspace_id, name, image, ports, environment_vars, cpus, memory, volumes, labels, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-			workspaceID, cube.Name, cube.Image, strings.Join(cube.Ports, ","), strings.Join(cube.EnvironmentVars, ","),
-			cube.ResourceLimits.CPUs, cube.ResourceLimits.Memory, mapToString(cube.Volumes), strings.Join(cube.Labels, ","))
-		if err != nil {
-			return fmt.Errorf("failed to insert cube: %v", err)
-		}
+	var lastInsertedID int64
+
+	result, err := db.Exec(`INSERT INTO container (workspace_id, name, image, ports, environment_vars, cpus, memory, volumes, labels, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+		workspaceID, cube.Name, cube.Image, strings.Join(cube.Ports, ","), strings.Join(cube.EnvironmentVars, ","),
+		cube.ResourceLimits.CPUs, cube.ResourceLimits.Memory, mapToString(cube.Volumes), strings.Join(cube.Labels, ","))
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert cube: %v", err)
 	}
 
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to retrieve last insert ID: %v", err)
+	}
+
+	lastInsertedID = id
+	log.Printf("Inserted cube with ID %d successfully!", id)
+
 	log.Println("Workspace and cubes inserted successfully!")
-	return nil
+	return lastInsertedID, nil
 }
 
 // Helper function to convert map to string

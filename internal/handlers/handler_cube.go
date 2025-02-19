@@ -18,7 +18,7 @@ HandleGetCubeData function receievs cube_id in query params and return GetCubesB
 func HandleGetCubeData(c echo.Context) error {
 	log.Printf("[*] Geting cube data request")
 
-	cubeIDStr := c.QueryParam("cube_id")
+	cubeIDStr := c.Param("cubeID")
 	if cubeIDStr == "" {
 		log.Printf("[*] Error: No cube ID provided in request")
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing cube ID"})
@@ -63,16 +63,16 @@ func HandleAddCubes(c echo.Context) error {
 		log.Printf("[*] Error: Invalid request body - %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid request: %v", err)})
 	}
-	log.Printf("[*] Attempting to add %d cubes to workspace %d", len(req.Cubes), req.WorkspaceID)
+	log.Printf("[*] Attempting to add %s cubes to workspace %d", req.Cube.Name, req.WorkspaceID)
 
-	err := database.InsertWorkspaceAndCubes(req.WorkspaceID, req.Cubes)
+	id, err := database.InsertWorkspaceAndCubes(req.WorkspaceID, req.Cube)
 	if err != nil {
 		log.Printf("[*] Database error while inserting cubes: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to insert cubes: %v", err)})
 	}
 
-	log.Printf("[*] Successfully added %d cubes to workspace %d", len(req.Cubes), req.WorkspaceID)
-	return c.JSON(http.StatusOK, map[string]string{"message": "Cubes added successfully"})
+	log.Printf("[*] Successfully added %s cubes to workspace %d", req.Cube.Name, req.WorkspaceID)
+	return c.JSON(http.StatusOK, map[string]int{"id": int(id)})
 }
 
 /*
@@ -80,6 +80,17 @@ HandleEditCube function receives cube_id in query params and restarts the cube
 */
 func HandleEditCube(c echo.Context) error {
 	log.Printf("[*] Starting edit cube request")
+	cubeIDStr := c.Param("cubeID")
+	if cubeIDStr == "" {
+		log.Printf("[*] Error: Missing workspace ID in request")
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing workspace ID"})
+	}
+
+	cubeID, err := strconv.Atoi(cubeIDStr)
+	if err != nil {
+		log.Printf("[*] Error: Invalid workspace ID format: %d - %v", cubeID, err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid workspace ID"})
+	}
 
 	var req models.EditCubeRequest
 
@@ -88,15 +99,15 @@ func HandleEditCube(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid request: %v", err)})
 	}
 
-	log.Printf("[*] Attempting to update cube ID: %d", req.CubeID)
+	log.Printf("[*] Attempting to update cube ID: %d", cubeID)
 
-	err := database.UpdateCube(req.CubeID, req.UpdatedCube)
+	err = database.UpdateCube(cubeID, req.UpdatedCube)
 	if err != nil {
 		log.Printf("[*] Database error while updating cube: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to update cube: %v", err)})
 	}
 
-	log.Printf("[*] Successfully updated cube ID: %d", req.CubeID)
+	log.Printf("[*] Successfully updated cube ID: %d", cubeID)
 	return c.JSON(http.StatusOK, map[string]string{"message": "Cube updated successfully"})
 }
 
@@ -106,7 +117,7 @@ HandleDeleteCube function receives cube_id in query params and restarts the cube
 func HandleDeleteCube(c echo.Context) error {
 	log.Printf("[*] Starting delete cube request")
 
-	cubeIDStr := c.QueryParam("cube_id")
+	cubeIDStr := c.Param("cubeID")
 	if cubeIDStr == "" {
 		log.Printf("[*] Error: Missing cube ID in request")
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing cube ID"})

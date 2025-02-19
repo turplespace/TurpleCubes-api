@@ -3,13 +3,12 @@ package models
 // ProxyRequest is the request body for the proxy service
 
 type EditCubeRequest struct {
-	CubeID      int       `json:"cube_id"`
 	UpdatedCube Container `json:"updated_cube"`
 }
 
 type AddCubesRequest struct {
-	WorkspaceID int         `json:"workspace_id"`
-	Cubes       []Container `json:"cubes"`
+	WorkspaceID int       `json:"workspace_id"`
+	Cube        Container `json:"cube_data"`
 }
 
 type EditWorkspaceRequest struct {

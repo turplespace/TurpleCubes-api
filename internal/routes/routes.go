@@ -40,14 +40,14 @@ func SetupRoutes(e *echo.Echo) {
 	// Cube routes
 	cubeGroup := e.Group("/api/cube")
 
-	cubeGroup.POST("/add", handlers.HandleAddCubes)
-	cubeGroup.PUT("/edit", handlers.HandleEditCube)
-	cubeGroup.DELETE("/delete", handlers.HandleDeleteCube)
-	cubeGroup.GET("", handlers.HandleGetCubeData)
-	cubeGroup.POST("/deploy", handlers.HandleDeployCube)
-	cubeGroup.POST("/redeploy", handlers.HandleRedeployCube)
-	cubeGroup.POST("/stop", handlers.HandleStopCube)
-	cubeGroup.POST("/commit", handlers.HandleCommitCube)
+	cubeGroup.POST("", handlers.HandleAddCubes)
+	cubeGroup.PUT("/:cubeID", handlers.HandleEditCube)
+	cubeGroup.DELETE("/:cubeID", handlers.HandleDeleteCube)
+	cubeGroup.GET("/:cubeID", handlers.HandleGetCubeData)
+	cubeGroup.POST("/:cubeID/deploy", handlers.HandleDeployCube)
+	cubeGroup.POST("/:cubeID/redeploy", handlers.HandleRedeployCube)
+	cubeGroup.POST("/:cubeID/stop", handlers.HandleStopCube)
+	cubeGroup.POST("/:cubeID/commit", handlers.HandleCommitCube)
 
 	// Proxy route
 	proxyGroup := e.Group("/api/proxy")
