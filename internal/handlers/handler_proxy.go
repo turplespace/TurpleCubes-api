@@ -11,7 +11,7 @@ import (
 )
 
 func HandleGetProxyByID(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("proxyID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid proxy ID"})
 	}
@@ -25,7 +25,7 @@ func HandleGetProxyByID(c echo.Context) error {
 }
 
 func HandleGetProxiesByCubeID(c echo.Context) error {
-	cubeID, err := strconv.Atoi(c.Param("cube_id"))
+	cubeID, err := strconv.Atoi(c.Param("cubeID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid cube ID"})
 	}
@@ -54,7 +54,7 @@ func HandleAddProxy(c echo.Context) error {
 }
 
 func HandleEditProxyByID(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("proxyID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid proxy ID"})
 	}
@@ -71,7 +71,7 @@ func HandleEditProxyByID(c echo.Context) error {
 }
 
 func HandleDeleteProxyByID(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("proxyID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid proxy ID"})
 	}
@@ -84,7 +84,7 @@ func HandleDeleteProxyByID(c echo.Context) error {
 }
 
 func HandleDeleteProxiesByCubeID(c echo.Context) error {
-	cubeID, err := strconv.Atoi(c.Param("cube_id"))
+	cubeID, err := strconv.Atoi(c.Param("cubeID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid cube ID"})
 	}

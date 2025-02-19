@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/turplespace/portos/internal/database"
@@ -10,23 +11,19 @@ import (
 	"github.com/turplespace/portos/internal/services/proxy"
 )
 
-type ProxyRequest struct {
-	ProxyID int `json:"proxy_id"`
-}
-
 // HandlePostProxy function receives ID in request body, fetches the proxy data from the database, and generates a proxy configuration
 func HandlePostStartProxy(c echo.Context) error {
 
-	var req ProxyRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+	proxyIDStr := c.Param("proxyID")
+	if proxyIDStr == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing proxy ID"})
 	}
 
-	if req.ProxyID == 0 {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Missing required fields"})
+	proxyID, err := strconv.Atoi(proxyIDStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid proxy ID"})
 	}
-
-	proxyData, err := database.GetProxyByID(req.ProxyID)
+	proxyData, err := database.GetProxyByID(proxyID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch proxy data"})
 	}
