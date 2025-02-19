@@ -59,7 +59,7 @@ func SetupRoutes(e *echo.Echo) {
 	proxyGroup.DELETE("/delete/cube/:cube_id", handlers.HandleDeleteProxiesByCubeID)
 	proxyGroup.POST("/start", handlers.HandlePostStartProxy)
 	// Images route
-	e.GET("/api/images", handlers.HandleGetImages)
+	e.GET("/api/repo/local", handlers.HandleGetImages)
 
 	// Logs route
 	e.GET("/api/logs/stream", handlers.HandleLogStream)
