@@ -129,3 +129,22 @@ func DeleteProxiesByCubeID(cubeID int) error {
 
 	return nil
 }
+
+func GetProxyIDByDomain(domain string) (int, error) {
+	db_path, _ := GetPath()
+	db, err := sql.Open("sqlite3", db_path)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open database: %v", err)
+	}
+	defer db.Close()
+	query := `SELECT id FROM proxy WHERE domain = ?`
+	row := db.QueryRow(query, domain)
+
+	var id int
+	err = row.Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get proxy id by domain: %v", err)
+	}
+
+	return id, nil
+}

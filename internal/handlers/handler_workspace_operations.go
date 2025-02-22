@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -20,12 +21,14 @@ func HandleDeployWorkspace(c echo.Context) error {
 
 	workspaceID, err := strconv.Atoi(workspaceIDStr)
 	if err != nil {
+		log.Printf("Failed to convert workspace ID to integer: %v", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid workspace ID"})
 	}
 
 	// Get all containers in the workspace
 	containers, err := database.ListContainersInWorkspace(workspaceID)
 	if err != nil {
+		log.Printf("Failed to list containers: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to list containers: %v", err)})
 	}
 
@@ -33,6 +36,7 @@ func HandleDeployWorkspace(c echo.Context) error {
 	for _, container := range containers {
 		err := docker.StartContainer(container)
 		if err != nil {
+			log.Printf("Failed to deploy container %s: %v", container.Name, err)
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": fmt.Sprintf("Failed to deploy container %s: %v", container.Name, err)})
 		}
 	}
