@@ -60,7 +60,7 @@ func Init() {
 	createProxyTableSQL := `CREATE TABLE IF NOT EXISTS proxy (
         "id" INTEGER PRIMARY KEY AUTOINCREMENT,
         "cube_id" INTEGER,
-        "domain" TEXT,
+        "domain" TEXT UNIQUE,
         "port" INTEGER,
         "type" TEXT,
         "default" BOOLEAN,

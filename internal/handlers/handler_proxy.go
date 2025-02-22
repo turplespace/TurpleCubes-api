@@ -44,9 +44,18 @@ func HandleAddProxy(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
 
+	// Check if the domain already exists
+	existingID, err := database.GetProxyIDByDomain(req.Domain)
+	if err == nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Domain already exists",
+			"id":      existingID,
+		})
+	}
+
 	id, err := database.AddProxy(req.CubeID, req.Domain, req.Port, req.Type, req.Default)
 	if err != nil {
-		log.Printf("%s", err)
+		log.Printf("Failed to add proxy: %s", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to add proxy"})
 	}
 
