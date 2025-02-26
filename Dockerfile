@@ -1,3 +1,4 @@
+# Build stage
 FROM golang:1.23.3-alpine AS build_base
 RUN apk add --no-cache git gcc musl-dev
 WORKDIR /app
@@ -5,12 +6,22 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-
-# Use make to build and run the application
+# Build the application
 COPY . .
-RUN CGO_ENABLED=1 GOOS=linux go build -o ./bin/turplecubes ./cmd/main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -o ./turplecubes ./cmd/main.go
 
-
+# Final stage
 FROM docker:dind
-COPY --from=build_base /app/bin /app/bin
-CMD [ "./app/bin/turplecubes" ]
+
+# Copy built binary outside bin (in /app)
+COPY --from=build_base /app/turplecubes /app/turplecubes
+
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Set working directory
+WORKDIR /app
+
+# Set entrypoint
+CMD ["/entrypoint.sh"]

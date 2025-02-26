@@ -113,18 +113,18 @@ docker build -t portos .
 ### Running Images
 #### linux
 ```bash
-docker run -it --user root \
+sudo docker run -it --user root \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd)/docker_volume/config:/app/bin/ \
   -p 8080:8080 \
   --privileged \
   turplecubes
-```
 
-#### windows
-```bash
-docker run -it --user root ^
-  -v //./pipe/docker_engine://./pipe/docker_engine ^
-  -p 8080:8080 ^
-  --privileged ^
-  turplecubes
 ```
+sudo docker rm -f turplecubes-proxy && \
+sudo docker run -d --name turplecubes-proxy \
+  -v $(pwd)/docker_volume/turplecubes_proxy:/etc/nginx/conf.d \
+  -p 80:80 \
+  nginx
+
+
