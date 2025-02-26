@@ -9,6 +9,11 @@ if [ ! -f /app/bin/turplecubes ]; then
     chmod +x /app/bin/turplecubes
 fi
 
+# Move the web folder to /app/bin if not already there
+if [ ! -d /app/bin/turplecubes_web ]; then
+    mv /app/turplecubes_web /app/bin/turplecubes_web
+fi
+
 # Ensure required directories exist
 mkdir -p /app/bin/turplecubes_proxy
 mkdir -p /app/bin/turplecubes_volumes

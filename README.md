@@ -113,9 +113,9 @@ docker build -t portos .
 ### Running Images
 #### linux
 ```bash
-sudo docker run -it --user root \
+sudo docker run -d --user root \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd)/docker_volume/config:/app/bin/ \
+  -v $(pwd)/docker_volume:/app/bin/ \
   -p 8080:8080 \
   --privileged \
   turplecubes

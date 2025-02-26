@@ -10,11 +10,17 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -o ./turplecubes ./cmd/main.go
 
+# Copy web folder
+COPY web /app/web
+
 # Final stage
 FROM docker:dind
 
 # Copy built binary outside bin (in /app)
 COPY --from=build_base /app/turplecubes /app/turplecubes
+
+# Copy web folder to /app
+COPY --from=build_base /app/web/dist /app/turplecubes_web
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
