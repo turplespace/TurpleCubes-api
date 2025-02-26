@@ -120,11 +120,11 @@ sudo docker run -it --user root \
   --privileged \
   turplecubes
 
-```
+
 sudo docker rm -f turplecubes-proxy && \
 sudo docker run -d --name turplecubes-proxy \
   -v $(pwd)/docker_volume/turplecubes_proxy:/etc/nginx/conf.d \
   -p 80:80 \
   nginx
-
+```
 
